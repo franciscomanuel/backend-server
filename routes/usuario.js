@@ -1,5 +1,8 @@
 var express = require('express');
 var bcrypt = require('bcryptjs');
+var jwt = require('jsonwebtoken');
+
+var SEED = require('../config/config').SEED;
 
 var app = express();
 
@@ -27,6 +30,30 @@ app.get('/', (req, res, next) => {
 
         });
 });
+
+// ===============================
+// Verificar token
+// ===============================
+app.use('/', (req, res, next) => {
+
+    var token = req.query.token;
+
+    jwt.verify(token, SEED, (err, decoded) => {
+        if(err){
+            return res.status(401).json({
+                ok: false,
+                mensaje: 'Token incorrecto',
+                errors: err
+            });
+        }
+
+        // Para que continue con las funciones de abajo (POST, PUT, DELETE) y no queden bloqueadas si el token es
+        // correcto
+        next();
+    });
+
+});
+
 
 // ===============================
 // Crear un nuevo usuario
@@ -104,6 +131,39 @@ app.put('/:id', (req, res) => {
                 usuario: usuarioGuardado
             });
         })
+
+    });
+
+});
+
+// ===============================
+// Borrar un usuario
+// ===============================
+app.delete('/:id', (req, res) => {
+
+    var id = req.params.id;
+
+    Usuario.findByIdAndRemove(id, (err, usuarioBorrado) => {
+        if(err){
+            return res.status(500).json({
+                ok: false,
+                mensaje: 'Error al borrrar usuario',
+                errors: err
+            });
+        }
+
+        if(!usuarioBorrado){
+            return res.status(404).json({
+                ok: false,
+                mensaje: 'Usuario no encontrado',
+                errors: {message: 'Usuario no encontrado'}
+            });
+        }
+
+        res.status(200).json({
+            ok: true,
+            usuario: usuarioBorrado
+        });
 
     });
 
