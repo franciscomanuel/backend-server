@@ -1,0 +1,19 @@
+{
+  "name": "backend-server",
+  "version": "1.0.0",
+  "description": "Servidor backend del proyecto Angular",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Francisco Manuel",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.3",
+    "mongoose": "^5.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.17.4"
+  }
+}
