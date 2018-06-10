@@ -12,7 +12,15 @@ var Medico = require('../models/medico');
 // ===============================
 app.get('/', (req, res) => {
 
-    Medico.find({}).exec(
+    var pag = req.query.pag || 0;
+    pag = Number(pag);
+
+    Medico.find({})
+        .skip(pag)
+        .limit(5)
+        .populate('usuario', 'nombre email')
+        .populate('hospital')
+        .exec(
         (err, medico) => {
             if(err){
                 return res.status(500).json({
@@ -22,9 +30,12 @@ app.get('/', (req, res) => {
                 });
             }
 
-            res.status(200).json({
-                ok: true,
-                medico: medico
+            Medico.count({}, (err, contador) => {
+                res.status(200).json({
+                    ok: true,
+                    medico: medico,
+                    total: contador
+                });
             });
         }
     );

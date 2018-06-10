@@ -12,7 +12,14 @@ var Hospital = require('../models/hospital');
 // ===============================
 app.get('/', (req, res) => {
 
-    Hospital.find({}).exec(
+    var pag = req.query.pag || 0;
+    pag = Number(pag);
+
+    Hospital.find({})
+        .skip(pag)
+        .limit(5)
+        .populate('usuario', 'nombre email')
+        .exec(
         (err, hospital) => {
             if(err){
                 return res.status(500).json({
@@ -22,9 +29,12 @@ app.get('/', (req, res) => {
                 });
             }
 
-            res.status(200).json({
-                ok: true,
-                hospital: hospital
+            Hospital.count({}, (err, contador) => {
+                res.status(200).json({
+                    ok: true,
+                    hospital: hospital,
+                    total: contador
+                });
             });
         }
     );
